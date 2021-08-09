@@ -71,9 +71,10 @@ O = block((1.5,1.5), 'Y', [[1,1], [2,1], [1,2], [2,2]])
 S = block((1,1), 'G', [[0,1], [1,1], [1,2], [2,2]])
 Z = block((1,1), 'R', [[1,1], [2,1], [0,2], [1,2]])
 
-block_lst = [I,J,L,T,O,S,Z]
+block_dict = {'I': I, 'J': J, 'L': L, 'T': T, 'O':O, 'S':S,'Z':Z}
 
-for block in block_lst:
+for block in block_dict.values():
     print(block)
     block.show_all()
+    
 
