@@ -74,5 +74,6 @@ Z = block((1,1), 'R', [[1,1], [2,1], [0,2], [1,2]])
 block_lst = [I,J,L,T,O,S,Z]
 
 for block in block_lst:
+    print(block)
     block.show_all()
 
