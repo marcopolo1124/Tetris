@@ -1,80 +1,59 @@
-import numpy as np
+from block_class import Block
+import pygame
+import random
+from tetris_class import grid
 
-class block:
-    
-    def __init__(self, center, color, default_coord):
-        self.center = np.array(center)
-        self.color = color
-        self.default_coord = []
-        self.rotation_dict={}
+pygame.init()
 
-        #Set coordinate to numpy array
-        for point in default_coord:
-            self.default_coord.append(np.array(point))
+screen = pygame.display.set_mode((800, 600))
 
-        #Create a dictionary of all rotation    
-        self.gen_rotation_dict()
+#load block skin
+I = Block((1.5,1.5), 'B', [[0,2], [1,2], [2,2], [3,2]])
+J = Block((1,1), 'D', [[0,1], [1,1], [2,1], [0,2]])
+L = Block((1,1), 'O', [[0,1], [1,1], [2,1], [2,2]])
+T = Block((1,1), 'P', [[0,1], [1,1], [2,1], [1,2]])
+O = Block((1.5,1.5), 'Y', [[1,1], [2,1], [1,2], [2,2]])
+S = Block((1,1), 'G', [[0,1], [1,1], [1,2], [2,2]])
+Z = Block((1,1), 'R', [[1,1], [2,1], [0,2], [1,2]])
 
-    def __repr__(self):
-        return self.color
+block_list = [I,J,L,T,O,S,Z]
+current_block = random.choice(block_list)
+play_area = grid(block_list=block_list, DAS = 100, ARR = 50, gravity = 300)
 
-    def rotate(self, turn = 0):
 
-        #Rotation matrices
-        identity = np.array([[1,0],
-                             [0,1]])
-        left = np.array([[0, -1],
-                        [1, 0]])
-        half = np.array([[-1,0],
-                        [0,-1]])
-        right = np.array([[0,1],
-                          [-1,0]])
-        
-        #Allow for easier access to the matrices through integers
-        rotation_dict = { 0: identity, 1: right, 2: half, 3: left}
-        
-        new_coord = []
-        for point in self.default_coord:
-            new_point = np.dot(rotation_dict[turn],point-self.center)+self.center
-            new_coord.append(new_point)
-        return new_coord
+running = True
+while running:
+    screen.fill((0, 0, 0))
+    play_area.execute()
     
 
+
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_x:
+                play_area.turn_block(1)
+            if event.key == pygame.K_z:
+                play_area.turn_block(-1)
+
+            if event.key == pygame.K_LEFT:
+                play_area.direction = -1
+                play_area.move_side()
+                play_area.key_press()
+            if event.key == pygame.K_RIGHT:
+                play_area.direction = 1
+                play_area.move_side()
+                play_area.key_press()
+
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+                play_area.key_release()
+        if event.type == pygame.QUIT:
+            running = False
+
+    pygame.display.update()
+
     
-    #dictionary of all rotations of a block
-    def gen_rotation_dict(self):
-        for i in range(4):
-            self.rotation_dict[i] = self.rotate(i)
-
-            
-    #Shows the blocks in a physical format. Can be further used
-    def list_representation(self, turn):
-        arr = [[' ' for i in range(4)] for j in range(4)]
-        for i,j in self.rotation_dict[turn]:
-            arr[int(j)][int(i)] = self.color
-
-        for i in range(3,-1,-1):
-            print(arr[i])
-        return arr
-    
-    def show_all(self):
-        for i in range(4):
-            self.list_representation(i)
-            print(' ')
 
 
-I = block((1.5,1.5), 'B', [[0,2], [1,2], [2,2], [3,2]])
-J = block((1,1), 'D', [[0,1], [1,1], [2,1], [0,2]])
-L = block((1,1), 'O', [[0,1], [1,1], [2,1], [2,2]])
-T = block((1,1), 'P', [[0,1], [1,1], [2,1], [1,2]])
-O = block((1.5,1.5), 'Y', [[1,1], [2,1], [1,2], [2,2]])
-S = block((1,1), 'G', [[0,1], [1,1], [1,2], [2,2]])
-Z = block((1,1), 'R', [[1,1], [2,1], [0,2], [1,2]])
 
-block_dict = {'I': I, 'J': J, 'L': L, 'T': T, 'O':O, 'S':S,'Z':Z}
-
-for block in block_dict.values():
-    print(block)
-    block.show_all()
-    
 
