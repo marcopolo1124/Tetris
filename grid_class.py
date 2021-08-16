@@ -10,23 +10,31 @@ GREY = (127,127,127)
 
 
 class PlayArea:
-
+    #Score
+    score = 0
     #grid_size
     grid = [10, 20]
     #block size
     block_size = 20
     #placing grid in the middle left of screen instead of corner
     offset = [100, 100]
+    #The holding queue. Press c to hold block
     hold_block = []
-
+    #The timer to determine how long does it take the piece to move down 1 block
     gravity_timer = 0
+    #This array determines line clears and which block is set in place
     array = [['' for i in range(10)] for j in range(25)]
+    #The current block position. The initial position is at 3,20
+    block_pos = np.array([3,20])
+    #Determines if a new block should spawn
+    available = True
 
     def __init__(self, block_list, DAS, ARR, gravity):
         self.block_list = block_list
+        #The bag, aka the 7 bag randomizer. Put 7 pieces into the bag and draw until its empty, then refill bag
         self.bag = block_list.copy()
+        #The block that is currently controlled by the player
         self.current_block = None
-        self.available = True
 
         #Delay auto shift: delay between first movement and subsequent movement
         self.DAS = DAS
@@ -37,12 +45,6 @@ class PlayArea:
         self.nat_gravity = gravity
         self.gravity_delay = gravity
 
-        #Start point for all blocks
-        self.block_pos = np.array([3,20])
-
-        #Current block turn
-        self.turn = 0
-
         #Queue
         self.queue = []
         for i in range(5):
@@ -50,6 +52,7 @@ class PlayArea:
             self.bag.pop(self.bag.index(chosen))
             self.queue.append(chosen)
 
+    #After the bag is depleted, refill the bag
     def refill_bag(self):
         if len(self.bag) == 0:
             print(self.block_list)
@@ -70,49 +73,63 @@ class PlayArea:
             self.queue.append(chosen)
             self.available = False
             self.turn = 0
+
+
+    #Hold mechanics
     held = False
     def hold(self):
+        #if statement so that only one hold is allowed per piece
         if not self.held:
+            #If list is empty take current block and spawn next block
             if len(self.hold_block) == 0:
                 self.hold_block.append(self.current_block)
                 self.available = True
+            #If list is not empty, then swap currently held block and current block
             else:
                 self.hold_block[0], self.current_block = self.current_block, self.hold_block[0]
                 self.block_pos = [3,20]
+            #Only allow the block to be held once per piece
             self.held = True
+
+    #Shows the held piece on the top left
     def show_hold(self):
         if len(self.hold_block) != 0:
             self.hold_block[0].show_block(0, 10, 440)
 
+    #Shows the next spawning blocks
     def show_queue(self):
         for i in range(5):
             self.queue[i].show_block(0, 350, 500- (100+(i*4*self.block_size)))
 
     #turns the block
+    turn = 0
     def turn_block(self, direction):
         self.turn += direction
         self.turn %= 4
         self.check_side_turn()
 
-    #Shows the block
+    #Shows the block in the current position on grid
     def show_block(self, turn):
         self.current_block.show_block(turn = turn, x = self.offset[0] + self.block_pos[0]*self.block_size, y = self.block_pos[1]*self.block_size+self.offset[1])
 
-    #When 
+    #Gravity mechanics: How the pieces fall
     def gravity(self):
+        #After a certain number of frames, the pieces will go down by 1 block
         if self.gravity_timer >= self.gravity_delay:
             self.block_pos[1] -= 1
             self.gravity_timer = 0
+    #Increment timer
+    def increment_time(self):
+        self.gravity_timer += 1
 
-
+    #Draws a 10 by 20 grid
     def draw_grid(self):
         for x in range(0, self.grid[0]*self.block_size, self.block_size):
             for y in range(0, self.grid[1]*self.block_size, self.block_size):
                 rect = pygame.Rect(x+ self.offset[0],y+self.offset[1]+20, self.block_size, self.block_size)
                 pygame.draw.rect(screen, GREY, rect, 1)
 
-    def increment_time(self):
-        self.gravity_timer += 1
+
     # Checks if the block is at the bottom. If block is below the bottom, or overlapping with a piece, the position will be corrected
     def check_bottom(self):
         set = False
@@ -120,9 +137,9 @@ class PlayArea:
             x = block[0] + self.block_pos[0]
             y = block[1] + self.block_pos[1]
             if y < 0 or self.array[int(y)][int(x)] != '':
-
                 self.block_pos[1]+=1
                 self.available = True
+                #If even 1 block is touching a block at the bottom, block is set
                 set = True
         if set:
             self.set_block()
@@ -161,6 +178,8 @@ class PlayArea:
         if self.check_side():
             self.block_pos[0] += self.direction
 
+    #The DAS is also known as the Delay auto shift. It is the amount of time after the initial press that the block will repeatedly move
+    #The ARR is the auto repeat rate. It is how fast the piece will move left to right during a long hold
 
     #Define the long press mechanics.
     def long_press(self):
@@ -201,7 +220,7 @@ class PlayArea:
                         self.block_pos[0]+=self.direction
         
 
-    #Prevents out of bounds after moving left/right
+    #Prevents out of bounds after moving left/right, as well as overlapping while moving left and right
     def check_side(self):
         collision = False
         for block in self.current_block.rotation_dict[self.turn]:
@@ -226,7 +245,7 @@ class PlayArea:
             elif block[0] + self.block_pos[0]  >=10:
 
                 self.block_pos[0] -= block[0]+self.block_pos[0] - 9
-
+    #Sets the final resting place of the piece.
     def set_block(self):
         for i in range(4):
             x=self.block_pos[0] + self.current_block.rotation_dict[int(self.turn)][i][0]
@@ -235,7 +254,8 @@ class PlayArea:
         self.held = False
 
     color_dict = {'B': (0,255,255),'D':(0,0,255),'O':(255,127,0),'P':(128,0,128),'Y':(255,255,0),'G':(0,255,0),'R':(255,0,0)}
-
+    
+    #Draws the set pieces onto the screen
     def draw_array(self):
         for j in range(len(self.array)):
             for i in range(len(self.array[j])):
