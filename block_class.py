@@ -5,6 +5,7 @@ pygame.init()
 
 screen = pygame.display.set_mode((800, 600))
 class Block:
+    color_dict = {'B': (0,255,255),'D':(0,0,255),'O':(255,127,0),'P':(128,0,128),'Y':(255,255,0),'G':(0,255,0),'R':(255,0,0)}
     
     def __init__(self, center, color, default_coord):
         self.center = np.array(center)
@@ -19,6 +20,7 @@ class Block:
         #Create a dictionary of all rotation    
         self.gen_rotation_dict()
         self.block_skin = pygame.image.load(color+'.png')
+        self.block_size = 20
 
     def __repr__(self):
         return self.color
@@ -64,8 +66,10 @@ class Block:
 
     def show_block(self, turn, x, y):
         for i,j in self.rotation_dict[turn]:
-            screen.blit(self.block_skin, (x+(i*20),600 - (y+(j*20))))
 
+            # screen.blit(self.block_skin, (x+(i*self.block_size),600 - (y+(j*self.block_size))))
+            rect = pygame.Rect(x+(i*self.block_size),600 - (y+(j*self.block_size)), self.block_size, self.block_size)
+            pygame.draw.rect(screen, self.color_dict[self.color], rect, 0)
     def show_all(self):
         for i in range(4):
             self.list_representation(i)
