@@ -4,6 +4,7 @@ import random
 import numpy as np
 
 screen = pygame.display.set_mode((800, 600))
+lines_clear_font = pygame.font.Font('freesansbold.ttf', 32)
 BLACK = (0,0,0)
 WHITE = (255,255,255)
 GREY = (127,127,127)
@@ -12,6 +13,7 @@ GREY = (127,127,127)
 class PlayArea:
     #Score
     score = 0
+    lines_cleared = 0
     #grid_size
     grid = [10, 20]
     #block size
@@ -55,16 +57,14 @@ class PlayArea:
     #After the bag is depleted, refill the bag
     def refill_bag(self):
         if len(self.bag) == 0:
-            print(self.block_list)
             self.bag = self.block_list.copy()
-            print(self.bag)
+
 
     #spawning behaviour
     def spawn(self):
         if self.available:
             self.block_pos = np.array([3,20])
             self.current_block = self.queue.pop(0)
-            print(self.bag)
             if len(self.bag) > 1:
                 chosen = random.choice(self.bag)
             else:
@@ -291,12 +291,20 @@ class PlayArea:
             self.gravity_delay = self.nat_gravity
 
     #When a row is full, clear row
-    def line_clear(self):
+    def clear(self):
+        lines = 0
         for row in self.array:
             if all(row):
                 self.array.pop(self.array.index(row))
                 #Append another row on the very top so that the list does not shrink
                 self.array.append(['' for i in range(10)])
+                lines+=1
+        self.lines_cleared += lines
+    
+    def show_lines_cleared(self):
+        lines_clear_text = lines_clear_font.render('Lines Cleared: '+ str(self.lines_cleared), True, (255,255,255))
+        screen.blit(lines_clear_text, (500, 100))
+                
 
 
     def execute(self):
@@ -311,5 +319,6 @@ class PlayArea:
         self.key_down_motion()
         self.increment_time()
         self.draw_array()
-        self.line_clear()
+        self.clear()
+        self.show_lines_cleared()
         self.show_hold()
