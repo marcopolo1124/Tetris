@@ -1,3 +1,4 @@
+from numpy.lib.function_base import copy
 import pygame
 import random
 import numpy as np
@@ -16,12 +17,14 @@ class PlayArea:
     block_size = 20
     #placing grid in the middle left of screen instead of corner
     offset = [100, 100]
+    hold_block = []
 
     gravity_timer = 0
     array = [['' for i in range(10)] for j in range(25)]
 
     def __init__(self, block_list, DAS, ARR, gravity):
         self.block_list = block_list
+        self.bag = block_list.copy()
         self.current_block = None
         self.available = True
 
@@ -43,18 +46,43 @@ class PlayArea:
         #Queue
         self.queue = []
         for i in range(5):
-            self.queue.append(random.choice(self.block_list))
+            chosen = random.choice(self.bag)
+            self.bag.pop(self.bag.index(chosen))
+            self.queue.append(chosen)
 
+    def refill_bag(self):
+        if len(self.bag) == 0:
+            print(self.block_list)
+            self.bag = self.block_list.copy()
+            print(self.bag)
 
     #spawning behaviour
     def spawn(self):
         if self.available:
             self.block_pos = np.array([3,20])
             self.current_block = self.queue.pop(0)
-            self.queue.append(random.choice(self.block_list))
+            print(self.bag)
+            if len(self.bag) > 1:
+                chosen = random.choice(self.bag)
+            else:
+                chosen = self.bag[0]
+            self.bag.pop(self.bag.index(chosen))
+            self.queue.append(chosen)
             self.available = False
             self.turn = 0
-            print(self.queue)
+    held = False
+    def hold(self):
+        if not self.held:
+            if len(self.hold_block) == 0:
+                self.hold_block.append(self.current_block)
+                self.available = True
+            else:
+                self.hold_block[0], self.current_block = self.current_block, self.hold_block[0]
+                self.block_pos = [3,20]
+            self.held = True
+    def show_hold(self):
+        if len(self.hold_block) != 0:
+            self.hold_block[0].show_block(0, 10, 440)
 
     def show_queue(self):
         for i in range(5):
@@ -204,6 +232,8 @@ class PlayArea:
             x=self.block_pos[0] + self.current_block.rotation_dict[int(self.turn)][i][0]
             y=self.block_pos[1] + self.current_block.rotation_dict[int(self.turn)][i][1]
             self.array[int(y)][int(x)] = self.current_block.color
+        self.held = False
+
     color_dict = {'B': (0,255,255),'D':(0,0,255),'O':(255,127,0),'P':(128,0,128),'Y':(255,255,0),'G':(0,255,0),'R':(255,0,0)}
 
     def draw_array(self):
@@ -250,6 +280,7 @@ class PlayArea:
 
 
     def execute(self):
+        self.refill_bag()
         self.spawn()
         self.show_queue()
         self.draw_grid()
@@ -261,3 +292,4 @@ class PlayArea:
         self.increment_time()
         self.draw_array()
         self.line_clear()
+        self.show_hold()

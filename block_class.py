@@ -19,7 +19,6 @@ class Block:
 
         #Create a dictionary of all rotation    
         self.gen_rotation_dict()
-        self.block_skin = pygame.image.load(color+'.png')
         self.block_size = 20
 
     def __repr__(self):

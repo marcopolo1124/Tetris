@@ -1,7 +1,7 @@
 from block_class import Block
 import pygame
 import random
-from control_layer import PlayArea
+from grid_class import PlayArea
 
 pygame.init()
 
@@ -14,11 +14,11 @@ L = Block((1,1), 'O', [[0,1], [1,1], [2,1], [2,2]])
 T = Block((1,1), 'P', [[0,1], [1,1], [2,1], [1,2 ]])
 O = Block((1.5,1.5), 'Y', [[1,1], [2,1], [1,2], [2,2]])
 S = Block((1,1), 'G', [[0,1], [1,1], [1,2], [2,2]])
-Z = Block((1,1), 'R', [[1,1], [2,1], [0,2], [1,2]])
+Z = Block((1,1), 'R', [[1,1], [2,1], [0 ,2], [1,2]])
 
 block_list = [I,J,L,T,O,S,Z]
 current_block = random.choice(block_list)
-play_area = PlayArea(block_list=block_list, DAS =50, ARR = 0, gravity = 300)
+play_area = PlayArea(block_list=block_list, DAS =70, ARR = 0, gravity = 300)
 
 
 running = True
@@ -47,7 +47,10 @@ while running:
                 play_area.space_press()
             
             if event.key == pygame.K_DOWN:
-                play_area.key_down_press() 
+                play_area.key_down_press()
+
+            if event.key == pygame.K_c:
+                play_area.hold()
 
 
         if event.type == pygame.KEYUP:
