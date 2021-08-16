@@ -47,7 +47,7 @@ while running:
                 play_area.space_press()
             
             if event.key == pygame.K_DOWN:
-                play_area.key_down_press()
+                play_area.key_down_press() 
 
 
         if event.type == pygame.KEYUP:

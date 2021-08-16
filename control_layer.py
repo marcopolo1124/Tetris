@@ -219,6 +219,12 @@ class PlayArea:
         else:
             self.gravity_delay = self.nat_gravity
 
+    def line_clear(self):
+        for row in self.array:
+            if all(row):
+                self.array.pop(self.array.index(row))
+                self.array.append(['' for i in range(10)])
+
 
     def execute(self):
         self.spawn()
@@ -230,3 +236,4 @@ class PlayArea:
         self.key_down_motion()
         self.increment_time()
         self.draw_array()
+        self.line_clear()
