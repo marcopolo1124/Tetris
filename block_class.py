@@ -51,27 +51,10 @@ class Block:
     #dictionary of all rotations of a block
     def gen_rotation_dict(self):
         for i in range(4):
-            self.rotation_dict[i] = self.rotate(i)
-
-            
-    #Shows the blocks in a physical format. Can be further used
-    def list_representation(self, turn):
-        arr = [[' ' for i in range(4)] for j in range(4)]
-        for i,j in self.rotation_dict[turn]:
-            arr[int(j)][int(i)] = self.color
-
-        for i in range(3,-1,-1):
-            print(arr[i])
-        return arr
+            self.rotation_dict[i] = self.rotate(i)  
 
     def show_block(self, turn, x, y):
         for i,j in self.rotation_dict[turn]:
-
-            # screen.blit(self.block_skin, (x+(i*self.block_size),600 - (y+(j*self.block_size))))
             rect = pygame.Rect(x+(i*self.block_size),600 - (y+(j*self.block_size)), self.block_size, self.block_size)
             pygame.draw.rect(screen, self.color_dict[self.color], rect, 0)
-    def show_all(self):
-        for i in range(4):
-            self.list_representation(i)
-            print(' ')
 

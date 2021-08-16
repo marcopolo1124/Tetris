@@ -6,7 +6,7 @@ from control_layer import PlayArea
 pygame.init()
 
 screen = pygame.display.set_mode((800, 600))
-
+ 
 #load block skin
 I = Block((1.5,1.5), 'B', [[0,2], [1,2], [2,2], [3,2]])
 J = Block((1,1), 'D', [[0,1], [1,1], [2,1], [0,2]])

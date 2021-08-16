@@ -5,6 +5,7 @@ import numpy as np
 screen = pygame.display.set_mode((800, 600))
 BLACK = (0,0,0)
 WHITE = (255,255,255)
+GREY = (127,127,127)
 
 
 class PlayArea:
@@ -39,14 +40,25 @@ class PlayArea:
         #Current block turn
         self.turn = 0
 
+        #Queue
+        self.queue = []
+        for i in range(5):
+            self.queue.append(random.choice(self.block_list))
+
 
     #spawning behaviour
     def spawn(self):
         if self.available:
             self.block_pos = np.array([3,20])
-            self.current_block = random.choice(self.block_list)
+            self.current_block = self.queue.pop(0)
+            self.queue.append(random.choice(self.block_list))
             self.available = False
             self.turn = 0
+            print(self.queue)
+
+    def show_queue(self):
+        for i in range(5):
+            self.queue[i].show_block(0, 350, 500- (100+(i*4*self.block_size)))
 
     #turns the block
     def turn_block(self, direction):
@@ -66,15 +78,14 @@ class PlayArea:
 
 
     def draw_grid(self):
-
         for x in range(0, self.grid[0]*self.block_size, self.block_size):
             for y in range(0, self.grid[1]*self.block_size, self.block_size):
                 rect = pygame.Rect(x+ self.offset[0],y+self.offset[1]+20, self.block_size, self.block_size)
-                pygame.draw.rect(screen, WHITE, rect, 1)
+                pygame.draw.rect(screen, GREY, rect, 1)
 
     def increment_time(self):
         self.gravity_timer += 1
-
+    # Checks if the block is at the bottom. If block is below the bottom, or overlapping with a piece, the position will be corrected
     def check_bottom(self):
         set = False
         for block in self.current_block.rotation_dict[self.turn]:
@@ -89,13 +100,14 @@ class PlayArea:
             self.set_block()
         return set
 
-
+    #starts timer every time the left/right key is hit
     key_timer_right = 0
     key_timer_left = 0
     key_down_right = False
     key_down_left = False
     direction = 0
 
+    #Left and right key are kept separate in order for the DAS and ARR system to work accordingly
     def right_key_press(self):
         self.key_down_right = True
         self.direction = 1
@@ -115,8 +127,9 @@ class PlayArea:
         self.key_down_left = False
 
         self.key_timer_left = 0
-
+    #moves the block in a direction when left/right arrow key is pressed
     def move_side(self):
+        #Check if there are obstructions first (If the check is done after a change in the position, then pieces will flicker)
         if self.check_side():
             self.block_pos[0] += self.direction
 
@@ -131,7 +144,7 @@ class PlayArea:
             if self.key_timer_right == self.DAS:
                 if self.check_side():
                     self.block_pos[0]+=self.direction
-            
+            #After the DAS timer is up, every time the timer is a multiple of ARR, move
             if self.ARR > 0:
                 if (self.key_timer_right - self.DAS)%self.ARR == 0 and self.key_timer_right > self.DAS:
                     if self.check_side():
@@ -142,6 +155,7 @@ class PlayArea:
                         self.block_pos[0]+=self.direction
 
         #Left key down
+        #Same as right key down. I can't seem to merge the two if statements since right key timer and left key timer are separate
         if self.key_down_left:
             self.key_timer_left += 1
 
@@ -191,43 +205,53 @@ class PlayArea:
             y=self.block_pos[1] + self.current_block.rotation_dict[int(self.turn)][i][1]
             self.array[int(y)][int(x)] = self.current_block.color
     color_dict = {'B': (0,255,255),'D':(0,0,255),'O':(255,127,0),'P':(128,0,128),'Y':(255,255,0),'G':(0,255,0),'R':(255,0,0)}
+
     def draw_array(self):
         for j in range(len(self.array)):
             for i in range(len(self.array[j])):
                 if self.array[j][i]:
-                    # block_skin = pygame.image.load(self.array[j][i]+'.png')
                     rect = pygame.Rect(i*self.block_size+ self.offset[0], (self.block_size * len(self.array) - (j*self.block_size)) + (self.offset[1])-5*self.block_size, self.block_size, self.block_size)
                     pygame.draw.rect(screen, self.color_dict[self.array[j][i]],rect, 0)
-                    # screen.blit(block_skin, (i*self.block_size+ self.offset[0], (self.block_size * len(self.array) - (j*self.block_size)) + (self.offset[1])-5*self.block_size))
-
+    #Hard drop mechanics
     def space_press(self):
         free = True
+        #While the block is not touching anything, drop down
         while free:
             self.block_pos[1] -= 1
+            #If the block touches something, block is no longer free
             if self.check_bottom():
                 free = False
+
+    #Soft drop mechanics
     key_down = False
+
+    #Changing True/False values on event allow for long presses
     def key_down_press(self):
         self.key_down = True
     
     def key_down_release(self):
         self.key_down = False
-    
+
     def key_down_motion(self):
+        #Change the gravity when the down key is pressed
         if self.key_down:
             self.gravity_delay = int(self.nat_gravity*(1/12))
+        #If not, change back to the natural gravity
         else:
             self.gravity_delay = self.nat_gravity
 
+    #When a row is full, clear row
     def line_clear(self):
         for row in self.array:
             if all(row):
                 self.array.pop(self.array.index(row))
+                #Append another row on the very top so that the list does not shrink
                 self.array.append(['' for i in range(10)])
 
 
     def execute(self):
         self.spawn()
+        self.show_queue()
         self.draw_grid()
         self.long_press()
         self.check_bottom()
