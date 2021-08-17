@@ -7,6 +7,8 @@ pygame.init()
 screen = pygame.display.set_mode((800, 600))
 ghost_surface = pygame.Surface((800,600), pygame.SRCALPHA)
 ghost_surface.set_alpha(128)
+over_font = pygame.font.Font('freesansbold.ttf', 30)
+
 #load block skin
 I = Block((1.5,1.5), 'B', [[0,2], [1,2], [2,2], [3,2]])
 J = Block((1,1), 'D', [[0,1], [1,1], [2,1], [0,2]])
@@ -18,6 +20,7 @@ Z = Block((1,1), 'R', [[1,1], [2,1], [0 ,2], [1,2]])
 
 block_list = [I,J,L,T,O,S,Z]
 play_area = PlayArea(block_list=block_list, DAS =20, ARR = 0, gravity = 300, lock_time=1000, ghost_surface=ghost_surface)
+rect = pygame.Rect(0,0, 300, 120)
 
 
 running = True
@@ -28,43 +31,48 @@ while running:
     play_area.execute()
     play_area.draw()
     screen.blit(ghost_surface, (0,0))
-
+    
     for event in pygame.event.get():
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_x: 
-                play_area.turn_block(1)
-            if event.key == pygame.K_z:
-                play_area.turn_block(-1)
+        if not play_area.top_out():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_x or event.key == pygame.K_UP: 
+                    play_area.turn_block(1)
+                if event.key == pygame.K_z:
+                    play_area.turn_block(-1)
 
-            if event.key == pygame.K_LEFT:
-                play_area.left_key_press()
-                play_area.move_side()
+                if event.key == pygame.K_LEFT:
+                    play_area.left_key_press()
+                    play_area.move_side()
 
-            if event.key == pygame.K_RIGHT:
-                play_area.right_key_press()
-                play_area.move_side()
+                if event.key == pygame.K_RIGHT:
+                    play_area.right_key_press()
+                    play_area.move_side()
 
-            if event.key == pygame.K_SPACE:
-                play_area.space_press()
-            
-            if event.key == pygame.K_DOWN:
-                play_area.key_down_press()
+                if event.key == pygame.K_SPACE:
+                    play_area.space_press()
+                
+                if event.key == pygame.K_DOWN:
+                    play_area.key_down_press()
 
-            if event.key == pygame.K_c:
-                play_area.hold()
+                if event.key == pygame.K_c:
+                    play_area.hold()
 
 
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_LEFT:
-                play_area.left_key_release()
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_LEFT:
+                    play_area.left_key_release()
 
-            if event.key == pygame.K_RIGHT:
-                play_area.right_key_release()
-            if event.key == pygame.K_DOWN:
-                play_area.key_down_release()
+                if event.key == pygame.K_RIGHT:
+                    play_area.right_key_release()
+                if event.key == pygame.K_DOWN:
+                    play_area.key_down_release()
         if event.type == pygame.QUIT:
             running = False
 
+    if play_area.top_out():
+        over_text = over_font.render('GAME OVER', True, (255,0,0))
+        screen.blit(over_text, (110,300))
+    pygame.draw.rect(screen, (0,0,0), rect, 0)
     pygame.display.update()
 
     

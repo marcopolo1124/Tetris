@@ -28,7 +28,8 @@ class PlayArea:
     #This array determines line clears and which block is set in place
     array = [['' for i in range(10)] for j in range(25)]
     #The current block position. The initial position is at 3,20
-    block_pos = np.array([3,20])
+    spawn_point = np.array([3, 18])
+    block_pos = spawn_point.copy()
     #Determines if a new block should spawn
     available = True
 
@@ -66,7 +67,7 @@ class PlayArea:
     #spawning behaviour
     def spawn(self):
         if self.available:
-            self.block_pos = np.array([3,20])
+            self.block_pos = self.spawn_point.copy()
             self.current_block = self.queue.pop(0)
             if len(self.bag) > 1:
                 chosen = random.choice(self.bag)
@@ -90,7 +91,7 @@ class PlayArea:
             #If list is not empty, then swap currently held block and current block
             else:
                 self.hold_block[0], self.current_block = self.current_block, self.hold_block[0]
-                self.block_pos = [3,20]
+                self.block_pos = self.spawn_point.copy()
             #Only allow the block to be held once per piece
             self.held = True
 
@@ -366,20 +367,24 @@ class PlayArea:
     def show_lines_cleared(self):
         lines_clear_text = lines_clear_font.render('Lines Cleared: '+ str(self.lines_cleared), True, (255,255,255))
         screen.blit(lines_clear_text, (500, 100))
-                
+
+    def top_out(self):
+        for grid in self.array[21]:
+            if grid!='':
+                return True
 
 
     def execute(self):
-        self.spawn()
-        self.refill_bag()
-        self.long_press()
-
-        self.ghost()
-        self.gravity()
-        self.increment_time()
-        self.key_down_motion()
-        self.check_bottom()
-        self.clear()
+        if not self.top_out():
+            self.spawn()
+            self.refill_bag()
+            self.long_press()
+            self.ghost()
+            self.gravity()
+            self.increment_time()
+            self.key_down_motion()
+            self.check_bottom()
+            self.clear()
 
     def draw(self):
         self.draw_grid()
