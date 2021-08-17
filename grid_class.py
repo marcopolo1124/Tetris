@@ -5,7 +5,7 @@ import numpy as np
 
 screen = pygame.display.set_mode((800, 600))
 
-lines_clear_font = pygame.font.Font('freesansbold.ttf', 32)
+lines_clear_font = pygame.font.Font('DaysLater.ttf', 32)
 BLACK = (0,0,0)
 WHITE = (255,255,255)
 GREY = (127,127,127)

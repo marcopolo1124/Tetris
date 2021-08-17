@@ -7,7 +7,7 @@ pygame.init()
 screen = pygame.display.set_mode((800, 600))
 ghost_surface = pygame.Surface((800,600), pygame.SRCALPHA)
 ghost_surface.set_alpha(128)
-over_font = pygame.font.Font('freesansbold.ttf', 30)
+over_font = pygame.font.Font('DaysLater.ttf', 30)
 
 #load block skin
 I = Block((1.5,1.5), 'B', [[0,2], [1,2], [2,2], [3,2]])
