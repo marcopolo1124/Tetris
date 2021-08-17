@@ -101,12 +101,57 @@ class PlayArea:
         for i in range(5):
             self.queue[i].show_block(0, 350, 500- (100+(i*4*self.block_size)))
 
+    kick_lst_01 = [np.array([0,0]), np.array([-1,0]), np.array([-1,1]),np.array([0,-2]),np.array([-1,-2])]
+    kick_lst_10 = [np.array([0,0]), np.array([1,0]), np.array([1,-1]), np.array([0,2]), np.array([1,2])]
+    kick_lst_12 = [np.array([0,0]), np.array([1,0]), np.array([1,-1]), np.array([0,2]), np.array([1,2])]
+    kick_lst_21 = [np.array([0,0]), np.array([-1,0]), np.array([-1,1]),np.array([0,-2]),np.array([-1,-2])]
+    kick_lst_23 = [np.array([0,0]), np.array([1,0]), np.array([1,1]),np.array([0,-2]),np.array([1,-2])]
+    kick_lst_32 = [np.array([0,0]), np.array([-1,0]), np.array([-1,-1]), np.array([0,2]), np.array([-1,-2])]
+    kick_lst_30 = [np.array([0,0]), np.array([-1,0]), np.array([-1,-1]),np.array([0,2]),np.array([-1,2])]
+    kick_lst_03 = [np.array([0,0]), np.array([1,0]), np.array([1,1]), np.array([0,-2]), np.array([1,-2])]   
+    jlstz_kick_dict = {str(0)+str(1): kick_lst_01, str(1)+str(0): kick_lst_10, str(1)+str(2): kick_lst_12, str(2)+str(1): kick_lst_21, str(2)+str(3): kick_lst_23, str(3)+str(2):kick_lst_32, str(3)+str(0):kick_lst_30, str(0)+str(3):kick_lst_03}
+
+    ikick_lst_01 = [np.array([0,0]), np.array([-2,0]), np.array([1,0]),np.array([-2,-1]),np.array([1,2])]
+    ikick_lst_10 = [np.array([0,0]), np.array([2,0]), np.array([-1,0]), np.array([2,1]), np.array([-1,-2])]
+    ikick_lst_12 = [np.array([0,0]), np.array([-1,0]), np.array([2,0]), np.array([-1,2]), np.array([2,-1])]
+    ikick_lst_21 = [np.array([0,0]), np.array([1,0]), np.array([-2,0]),np.array([1,-2]),np.array([-2,1])]
+    ikick_lst_23 = [np.array([0,0]), np.array([2,0]), np.array([-1,0]),np.array([2,1]),np.array([-1,-2])]
+    ikick_lst_32 = [np.array([0,0]), np.array([-2,0]), np.array([1,0]), np.array([-2,-1]), np.array([1,2])]
+    ikick_lst_30 = [np.array([0,0]), np.array([1,0]), np.array([-2,0]),np.array([1,-2]),np.array([-2,1])]
+    ikick_lst_03 = [np.array([0,0]), np.array([-1,0]), np.array([2,0]), np.array([-1,2]), np.array([2,-1])]
+    i_kick_dict = {str(0)+str(1): ikick_lst_01, str(1)+str(0): ikick_lst_10, str(1)+str(2): ikick_lst_12, str(2)+str(1): ikick_lst_21, str(2)+str(3): ikick_lst_23, str(3)+str(2):ikick_lst_32, str(3)+str(0):ikick_lst_30, str(0)+str(3):ikick_lst_03}
+
+    def check_side_turn(self,direction):
+        kick_dict = {}
+        overlap = False
+        test_turn = (self.turn+direction)%4
+        if self.current_block.color == 'B':
+            kick_dict = self.i_kick_dict
+        else:
+            kick_dict = self.jlstz_kick_dict
+        kick_lst = kick_dict[str(self.turn)+str(test_turn)]
+
+        
+        for trans in kick_lst:
+            test_pos = self.block_pos.copy()
+            overlap = False
+            test_pos += trans
+            for block in self.current_block.rotation_dict[test_turn]:
+                test_x = int(block[0] + test_pos[0])
+                test_y = int(block[1] + test_pos[1])
+                if test_x < 0 or test_x >= 10 or test_y <0 or self.array[test_y][test_x]:
+                    overlap = True
+                    break
+            if not overlap:
+                self.block_pos = test_pos
+                return overlap
+        return True
     #turns the block
     turn = 0
     def turn_block(self, direction):
-        self.turn += direction
-        self.turn %= 4
-        self.check_side_turn()
+        if not self.check_side_turn(direction):
+            self.turn += direction
+            self.turn %= 4
 
     #Shows the block in the current position on grid
     def show_block(self, turn):
@@ -235,16 +280,28 @@ class PlayArea:
         return collision
 
     #Prevents out of bounds after turning
-    def check_side_turn(self):
 
-        for block in self.current_block.rotation_dict[self.turn]:
-            if block[0] + self.block_pos[0] <0:
 
-                self.block_pos[0] -=block[0]+self.block_pos[0]
 
-            elif block[0] + self.block_pos[0]  >=10:
 
-                self.block_pos[0] -= block[0]+self.block_pos[0] - 9
+
+
+
+
+
+
+
+
+
+            # if block[0] + self.block_pos[0] <0:
+
+            #     self.block_pos[0] -=block[0]+self.block_pos[0]
+
+            # elif block[0] + self.block_pos[0]  >=10:
+
+            #     self.block_pos[0] -= block[0]+self.block_pos[0] - 9
+
+
     #Sets the final resting place of the piece.
     def set_block(self):
         for i in range(4):
