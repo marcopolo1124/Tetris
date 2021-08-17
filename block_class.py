@@ -4,8 +4,15 @@ import pygame
 pygame.init()
 
 screen = pygame.display.set_mode((800, 600))
+
+
+
 class Block:
+    ghost_surface = pygame.Surface((800,600))
+    ghost_surface.set_alpha(128)
+    alpha = 175
     color_dict = {'B': (0,255,255),'D':(0,0,255),'O':(255,127,0),'P':(128,0,128),'Y':(255,255,0),'G':(0,255,0),'R':(255,0,0)}
+    ghost_color_dict = {'B': (0,255,255,alpha),'D':(0,0,255,alpha),'O':(255,127,0,alpha),'P':(128,0,128,alpha),'Y':(255,255,0,alpha),'G':(0,255,0,alpha),'R':(255,0,0,alpha)}
     
     def __init__(self, center, color, default_coord):
         self.center = np.array(center)
@@ -52,8 +59,12 @@ class Block:
         for i in range(4):
             self.rotation_dict[i] = self.rotate(i)  
 
-    def show_block(self, turn, x, y):
+    def show_block(self, turn, x, y, surface = screen):
         for i,j in self.rotation_dict[turn]:
             rect = pygame.Rect(x+(i*self.block_size),600 - (y+(j*self.block_size)), self.block_size, self.block_size)
-            pygame.draw.rect(screen, self.color_dict[self.color], rect, 0)
+            pygame.draw.rect(surface, self.color_dict[self.color], rect, 0)
 
+    def show_ghost(self, turn, x, y, surface):
+        for i,j in self.rotation_dict[turn]:
+            rect_ghost = pygame.Rect(x+(i*self.block_size),600 - (y+(j*self.block_size)), self.block_size, self.block_size)
+            pygame.draw.rect(surface,self.ghost_color_dict[self.color], rect_ghost, 0)

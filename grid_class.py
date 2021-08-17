@@ -4,6 +4,7 @@ import random
 import numpy as np
 
 screen = pygame.display.set_mode((800, 600))
+
 lines_clear_font = pygame.font.Font('freesansbold.ttf', 32)
 BLACK = (0,0,0)
 WHITE = (255,255,255)
@@ -31,12 +32,13 @@ class PlayArea:
     #Determines if a new block should spawn
     available = True
 
-    def __init__(self, block_list, DAS, ARR, gravity):
+    def __init__(self, block_list, DAS, ARR, gravity, lock_time, ghost_surface):
         self.block_list = block_list
         #The bag, aka the 7 bag randomizer. Put 7 pieces into the bag and draw until its empty, then refill bag
         self.bag = block_list.copy()
         #The block that is currently controlled by the player
         self.current_block = None
+        self.ghost_surface = ghost_surface
 
         #Delay auto shift: delay between first movement and subsequent movement
         self.DAS = DAS
@@ -46,6 +48,7 @@ class PlayArea:
         #Delay between block moving down
         self.nat_gravity = gravity
         self.gravity_delay = gravity
+        self.lock_time = lock_time
 
         #Queue
         self.queue = []
@@ -154,8 +157,8 @@ class PlayArea:
             self.turn %= 4
 
     #Shows the block in the current position on grid
-    def show_block(self, turn):
-        self.current_block.show_block(turn = turn, x = self.offset[0] + self.block_pos[0]*self.block_size, y = self.block_pos[1]*self.block_size+self.offset[1])
+    def show_block(self):
+        self.current_block.show_block(turn = self.turn, x = self.offset[0] + self.block_pos[0]*self.block_size, y = self.block_pos[1]*self.block_size+self.offset[1])
 
     #Gravity mechanics: How the pieces fall
     def gravity(self):
@@ -176,6 +179,7 @@ class PlayArea:
 
 
     # Checks if the block is at the bottom. If block is below the bottom, or overlapping with a piece, the position will be corrected
+    lock_timer = 0
     def check_bottom(self):
         set = False
         for block in self.current_block.rotation_dict[self.turn]:
@@ -183,11 +187,15 @@ class PlayArea:
             y = block[1] + self.block_pos[1]
             if y < 0 or self.array[int(y)][int(x)] != '':
                 self.block_pos[1]+=1
-                self.available = True
-                #If even 1 block is touching a block at the bottom, block is set
-                set = True
+                if self.lock_timer >= self.lock_time:
+                    set = True
+            if y<= 0 or self.array[int(y)-1][int(x)] !='':
+                self.lock_timer+=1
+            
         if set:
             self.set_block()
+            self.available = True
+            self.lock_timer = 0
         return set
 
     #starts timer every time the left/right key is hit
@@ -279,29 +287,6 @@ class PlayArea:
                 collision = True
         return collision
 
-    #Prevents out of bounds after turning
-
-
-
-
-
-
-
-
-
-
-
-
-
-            # if block[0] + self.block_pos[0] <0:
-
-            #     self.block_pos[0] -=block[0]+self.block_pos[0]
-
-            # elif block[0] + self.block_pos[0]  >=10:
-
-            #     self.block_pos[0] -= block[0]+self.block_pos[0] - 9
-
-
     #Sets the final resting place of the piece.
     def set_block(self):
         for i in range(4):
@@ -329,6 +314,26 @@ class PlayArea:
             if self.check_bottom():
                 free = False
 
+    def ghost(self):
+        self.ghost_pos = self.block_pos.copy()
+        overlap = False
+        while not overlap:
+            self.ghost_pos[1] -= 1
+            for block in self.current_block.rotation_dict[self.turn]:
+                ghost_x = int(block[0] + self.ghost_pos[0])
+                ghost_y = int(block[1] + self.ghost_pos[1])
+                if ghost_y < 0 or self.array[ghost_y][ghost_x] != '':
+                    ghost_y += 1
+                    overlap = True
+        
+    
+    def show_ghost(self):
+        self.current_block.show_ghost(turn = self.turn, x = self.offset[0] + self.ghost_pos[0]*self.block_size, y = self.ghost_pos[1]*self.block_size+self.offset[1]+20, surface = self.ghost_surface)
+      
+
+            
+
+
     #Soft drop mechanics
     key_down = False
 
@@ -342,7 +347,7 @@ class PlayArea:
     def key_down_motion(self):
         #Change the gravity when the down key is pressed
         if self.key_down:
-            self.gravity_delay = int(self.nat_gravity*(1/12))
+            self.gravity_delay = int(self.nat_gravity*(1/48))
         #If not, change back to the natural gravity
         else:
             self.gravity_delay = self.nat_gravity
@@ -365,17 +370,22 @@ class PlayArea:
 
 
     def execute(self):
-        self.refill_bag()
         self.spawn()
-        self.show_queue()
-        self.draw_grid()
+        self.refill_bag()
         self.long_press()
-        self.check_bottom()
-        self.show_block(self.turn)
+
+        self.ghost()
         self.gravity()
-        self.key_down_motion()
         self.increment_time()
-        self.draw_array()
+        self.key_down_motion()
+        self.check_bottom()
         self.clear()
+
+    def draw(self):
+        self.draw_grid()
+        self.show_queue()
+        self.show_block()
+        self.show_ghost()
+        self.draw_array()
         self.show_lines_cleared()
         self.show_hold()
