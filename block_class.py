@@ -68,3 +68,13 @@ class Block:
         for i,j in self.rotation_dict[turn]:
             rect_ghost = pygame.Rect(x+(i*self.block_size),600 - (y+(j*self.block_size)), self.block_size, self.block_size)
             pygame.draw.rect(surface,self.ghost_color_dict[self.color], rect_ghost, 0)
+
+I = Block((1.5,1.5), 'B', [[0,2], [1,2], [2,2], [3,2]])
+J = Block((1,1), 'D', [[0,1], [1,1], [2,1], [0,2]])
+L = Block((1,1), 'O', [[0,1], [1,1], [2,1], [2,2]])
+T = Block((1,1), 'P', [[0,1], [1,1], [2,1], [1,2 ]])
+O = Block((1.5,1.5),     'Y', [[1,1], [2,1], [1,2], [2,2]])
+S = Block((1,1), 'G', [[0,1], [1,1], [1,2], [2,2]])
+Z = Block((1,1), 'R', [[1,1], [2,1], [0 ,2], [1,2]])
+
+block_list = [I,J,L,T,O,S,Z]
