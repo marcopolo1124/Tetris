@@ -152,6 +152,12 @@ class OptionsMenu(Menu):
                 self.game.grid.ARR=0
             else:
                 self.game.grid.ARR = int(self.arr_str)
+            if self.alpha_str == '':
+                self.game.ALPHA = 0
+                self.game.ghost_surface.set_alpha(0)
+            else:
+                self.game.ALPHA = int(self.alpha_str)
+                self.game.ghost_surface.set_alpha(self.game.ALPHA)
             self.draw_cursor()
             self.blit_screen()
 
@@ -184,53 +190,72 @@ class OptionsMenu(Menu):
                         self.das_str += str(0)
                     elif self.state == 'ARR':
                         self.arr_str += str(0)
-
+                    elif self.state == 'Ghost':
+                        self.alpha_str += str(0)
                 if event.key == pygame.K_1:
                     if self.state == 'DAS':
                         self.das_str += str(1)
                     elif self.state == 'ARR':
                         self.arr_str += str(1)
+                    elif self.state == 'Ghost':
+                        self.alpha_str += str(1)
                 if event.key == pygame.K_2:
                     if self.state == 'DAS':
                         self.das_str += str(2)
                     elif self.state == 'ARR':
                         self.arr_str += str(2)
+                    elif self.state == 'Ghost':
+                        self.alpha_str += str(2)
                 if event.key == pygame.K_3:
                     if self.state == 'DAS':
                         self.das_str += str(3)
                     elif self.state == 'ARR':
                         self.arr_str += str(3)
+                    elif self.state == 'Ghost':
+                        self.alpha_str += str(3)
                 if event.key == pygame.K_4:
                     if self.state == 'DAS':
                         self.das_str += str(4)
                     elif self.state == 'ARR':
                         self.arr_str += str(4)
+                    elif self.state == 'Ghost':
+                        self.alpha_str += str(4)
                 if event.key == pygame.K_5:
                     if self.state == 'DAS':
                         self.das_str += str(5)
                     elif self.state == 'ARR':
                         self.arr_str += str(5)
+                    elif self.state == 'Ghost':
+                        self.alpha_str += str(5)
                 if event.key == pygame.K_6:
                     if self.state == 'DAS':
                         self.das_str += str(6)
                     elif self.state == 'ARR':
                         self.arr_str += str(6)
+                    elif self.state == 'Ghost':
+                        self.alpha_str += str(6)
 
                 if event.key == pygame.K_7:
                     if self.state == 'DAS':
                         self.das_str += str(7)
                     elif self.state == 'ARR':
                         self.arr_str += str(7)
+                    elif self.state == 'Ghost':
+                        self.alpha_str += str(7)
                 if event.key == pygame.K_8:
                     if self.state == 'DAS':
                         self.das_str += str(8)
                     elif self.state == 'ARR':
                         self.arr_str += str(8)
+                    elif self.state == 'Ghost':
+                        self.alpha_str += str(8)
                 if event.key == pygame.K_9:
                     if self.state == 'DAS':
                         self.das_str += str(9)
                     elif self.state == 'ARR':
                         self.arr_str += str(9)
+                    elif self.state == 'Ghost':
+                        self.alpha_str += str(9)
                 
 
                 if event.key == pygame.K_BACKSPACE:
@@ -238,6 +263,8 @@ class OptionsMenu(Menu):
                         self.das_str = self.das_str[:-1]
                     elif self.state == 'ARR':
                         self.arr_str = self.arr_str[:-1]
+                    elif self.state == 'Ghost':
+                        self.alpha_str = self.alpha_str[:-1]
             else:
                 pass
 
