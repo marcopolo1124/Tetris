@@ -23,7 +23,7 @@ class Game():
         self.soft_drop = soft_drop
         self.das = das
         self.arr = arr
-        self.grid = PlayArea(block_list = block_list, DAS = self.das, ARR = self.arr, soft_drop = self.soft_drop ,gravity =300, lock_time = 1000, screen = self.window, ghost_surface=self.ghost_surface)
+        self.grid = PlayArea(block_list = block_list, DAS = self.das, ARR = self.arr, soft_drop = self.soft_drop ,gravity =50, lock_time = 100, screen = self.window, ghost_surface=self.ghost_surface)
 
         self.main_menu = MainMenu(self)
         self.pause_menu = PauseMenu(self)
@@ -36,6 +36,7 @@ class Game():
 #-------------------------Game loop------------------------------------------
     def game_loop(self):
         while self.playing:
+
             self.window.fill(self.BLACK)
             self.ghost_surface.fill((0,0,0,0))
 
@@ -44,7 +45,6 @@ class Game():
             self.window.blit(self.ghost_surface, (0,0))
             self.draw_text('Lines Cleared: '+ str(self.grid.lines_cleared), size = 32, x= 500, y = 100)
             self.check_events()
-
             #When start key is pressed, stop playing
             if self.START_KEY:
                 self.curr_menu = self.main_menu
@@ -58,6 +58,7 @@ class Game():
 
             if self.grid.game_over():
                 self.draw_text('GAME OVER', 30, 200, 300)
+            self.grid.space = False
             self.reset_keys()
             pygame.display.update()
 #-------------------------User input-----------------------------------------
@@ -123,6 +124,8 @@ class Game():
                     self.grid.right_key_release()
                 if event.key == pygame.K_DOWN:
                     self.grid.key_down_release()
+
+
             self.options_menu.check_text_input(event)
             self.pause_options_menu.check_text_input(event)
 #-------------------------Reset key------------------------------------------

@@ -144,6 +144,14 @@ class OptionsMenu(Menu):
             self.game.draw_text(self.das_str, 20, self.mid_w, self.mid_h+40)
             self.game.draw_text(self.arr_str, 20, self.mid_w, self.mid_h+60)
             self.game.draw_text(self.alpha_str, 20, self.mid_w, self.mid_h+80)
+            if self.das_str == '':
+                self.game.grid.DAS = 0
+            else:
+                self.game.grid.DAS = int(self.das_str)
+            if self.arr_str == '':
+                self.game.grid.ARR=0
+            else:
+                self.game.grid.ARR = int(self.arr_str)
             self.draw_cursor()
             self.blit_screen()
 
@@ -167,87 +175,72 @@ class OptionsMenu(Menu):
         
         self.state = self.state_dict[self.index][0]
         self.cursor_rect.midtop = (self.state_dict[self.index][1] + self.offset, self.state_dict[self.index][2])
+
     def check_text_input(self, event):
         if self.run_display:
             if event.type == pygame.KEYDOWN:
-                if self.state == 'DAS':
-                    if event.key == pygame.K_0:
+                if event.key == pygame.K_0:
+                    if self.state == 'DAS':
                         self.das_str += str(0)
-                    if event.key == pygame.K_1:
-                        self.das_str += str(1)
-                    if event.key == pygame.K_2:
-                        self.das_str += str(2)
-                    if event.key == pygame.K_3:
-                        self.das_str += str(3)
-                    if event.key == pygame.K_4:
-                        self.das_str += str(4)
-                    if event.key == pygame.K_5:
-                        self.das_str += str(5)
-                    if event.key == pygame.K_6:
-                        self.das_str += str(6)
-                    if event.key == pygame.K_7:
-                        self.das_str += str(7)
-                    if event.key == pygame.K_8:
-                        self.das_str += str(8)
-                    if event.key == pygame.K_9:
-                        self.das_str += str(9)
-                    if event.key == pygame.K_BACKSPACE:
-                        self.das_str = self.das_str[:-1]
-                    if event.key == pygame.K_RETURN:
-                        self.game.grid.DAS = int(self.das_str)
-                if self.state == 'ARR':
-                    if event.key == pygame.K_0:
+                    elif self.state == 'ARR':
                         self.arr_str += str(0)
-                    if event.key == pygame.K_1:
+
+                if event.key == pygame.K_1:
+                    if self.state == 'DAS':
+                        self.das_str += str(1)
+                    elif self.state == 'ARR':
                         self.arr_str += str(1)
-                    if event.key == pygame.K_2:
+                if event.key == pygame.K_2:
+                    if self.state == 'DAS':
+                        self.das_str += str(2)
+                    elif self.state == 'ARR':
                         self.arr_str += str(2)
-                    if event.key == pygame.K_3:
+                if event.key == pygame.K_3:
+                    if self.state == 'DAS':
+                        self.das_str += str(3)
+                    elif self.state == 'ARR':
                         self.arr_str += str(3)
-                    if event.key == pygame.K_4:
+                if event.key == pygame.K_4:
+                    if self.state == 'DAS':
+                        self.das_str += str(4)
+                    elif self.state == 'ARR':
                         self.arr_str += str(4)
-                    if event.key == pygame.K_5:
+                if event.key == pygame.K_5:
+                    if self.state == 'DAS':
+                        self.das_str += str(5)
+                    elif self.state == 'ARR':
                         self.arr_str += str(5)
-                    if event.key == pygame.K_6:
+                if event.key == pygame.K_6:
+                    if self.state == 'DAS':
+                        self.das_str += str(6)
+                    elif self.state == 'ARR':
                         self.arr_str += str(6)
-                    if event.key == pygame.K_7:
+
+                if event.key == pygame.K_7:
+                    if self.state == 'DAS':
+                        self.das_str += str(7)
+                    elif self.state == 'ARR':
                         self.arr_str += str(7)
-                    if event.key == pygame.K_8:
+                if event.key == pygame.K_8:
+                    if self.state == 'DAS':
+                        self.das_str += str(8)
+                    elif self.state == 'ARR':
                         self.arr_str += str(8)
-                    if event.key == pygame.K_9:
+                if event.key == pygame.K_9:
+                    if self.state == 'DAS':
+                        self.das_str += str(9)
+                    elif self.state == 'ARR':
                         self.arr_str += str(9)
-                    if event.key == pygame.K_BACKSPACE:
+                
+
+                if event.key == pygame.K_BACKSPACE:
+                    if self.state == 'DAS':
+                        self.das_str = self.das_str[:-1]
+                    elif self.state == 'ARR':
                         self.arr_str = self.arr_str[:-1]
-                    if event.key == pygame.K_RETURN:
-                        self.game.grid.ARR = int(self.arr_str)
-                else:
-                    pass
-                # if self.state == 'Ghost':
-                #     if event.key == pygame.K_0:
-                #         self.alpha_str += str(0)
-                #     if event.key == pygame.K_1:
-                #         self.alpha_str += str(1)
-                #     if event.key == pygame.K_2:
-                #         self.alpha_str += str(2)
-                #     if event.key == pygame.K_3:
-                #         self.alpha_str += str(3)
-                #     if event.key == pygame.K_4:
-                #         self.alpha_str += str(4)
-                #     if event.key == pygame.K_5:
-                #         self.alpha_str += str(5)
-                #     if event.key == pygame.K_6:
-                #         self.alpha_str += str(6)
-                #     if event.key == pygame.K_7:
-                #         self.alpha_str += str(7)
-                #     if event.key == pygame.K_8:
-                #         self.alpha_str += str(8)
-                #     if event.key == pygame.K_9:
-                #         self.alpha_str += str(9)
-                #     if event.key == pygame.K_BACKSPACE:
-                #         self.alpha_str = self.alpha_str[:-1]
-                #     if event.key == pygame.K_RETURN:
-                #         self.game.ALPHA = int(self.alpha_str)
-                #         self.game.ghost_surface.set_alpha(self.game.ALPHA)
+            else:
+                pass
+
     
     def update(self):
         if self.run_display:

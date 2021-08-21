@@ -58,6 +58,7 @@ class PlayArea:
         #Soft drop speed
         self.key_down = False
         self.soft_drop = soft_drop
+        self.set = False
  
         #Delay auto shift: delay between first movement and subsequent movement
         self.DAS = DAS
@@ -65,6 +66,7 @@ class PlayArea:
         self.ARR = ARR
 
         #Delay between block moving down
+        self.space = False
         self.nat_gravity = gravity
         self.gravity_delay = gravity
         self.lock_time = lock_time
@@ -140,7 +142,7 @@ class PlayArea:
     def show_queue(self):
         for i in range(5):
             self.queue[i].show_block(0, 350, 500- (100+(i*4*self.block_size)))
-#---------------TURN MECHANICS -----------------------------------------------
+#---------------Turn mechanics -----------------------------------------------
     def turn_block(self, direction):
         if not self.check_side_turn(direction) and not self.game_over():
             self.turn += direction
@@ -202,22 +204,21 @@ class PlayArea:
 #---------------Setting mechanics---------------------------------------------
     # Checks if the block is at the bottom. If block is below the bottom, or overlapping with a piece, the position will be corrected    
     def check_bottom(self):
-        set = False
         for block in self.current_block.rotation_dict[self.turn]:
             x = block[0] + self.block_pos[0]
             y = block[1] + self.block_pos[1]
             if y < 0 or self.array[int(y)][int(x)] != '':
                 self.block_pos[1]+=1
                 if self.lock_timer >= self.lock_time:
-                    set = True
+                    self.set = True
             if y<= 0 or self.array[int(y)-1][int(x)] !='':
                 self.lock_timer+=1
             
-        if set:
+        if self.set:
             self.set_block()
             self.available = True
             self.lock_timer = 0
-        return set
+            self.set = False
 
     #Sets the final resting place of the piece.
     def set_block(self):
@@ -253,14 +254,12 @@ class PlayArea:
     def right_key_release(self):
         if not self.game_over():
             self.key_down_right = False
-
-        self.key_timer_right = 0
+            self.key_timer_right = 0
 
     def left_key_release(self):
         if not self.game_over():
             self.key_down_left = False
-
-        self.key_timer_left = 0
+            self.key_timer_left = 0
     #moves the block in a direction when left/right arrow key is pressed
     def move_side(self):
         #Check if there are obstructions first (If the check is done after a change in the position, then pieces will flicker)
@@ -281,11 +280,12 @@ class PlayArea:
                     self.block_pos[0]+=self.direction
             #After the DAS timer is up, every time the timer is a multiple of ARR, move
             if self.ARR > 0:
-                if (self.key_timer_right - self.DAS)%self.ARR == 0 and self.key_timer_right > self.DAS:
+                if (self.key_timer_right - self.DAS) == self.ARR and self.key_timer_right > self.DAS:
                     if self.check_side():
                         self.block_pos[0]+=self.direction
+                        self.key_timer_right = self.DAS+1
             if self.ARR <= 0:
-                if self.key_timer_right > self.DAS:
+                if self.key_timer_right >= self.DAS:
                     while self.check_side():
                         self.block_pos[0]+=self.direction
 
@@ -302,8 +302,9 @@ class PlayArea:
                 if (self.key_timer_left - self.DAS)%self.ARR == 0 and self.key_timer_left > self.DAS:
                     if self.check_side():
                         self.block_pos[0]+=self.direction
+                        self.key_timer_left = self.DAS+1
             if self.ARR <= 0:
-                if self.key_timer_left > self.DAS:
+                if self.key_timer_left >= self.DAS:
                     while self.check_side():
                         self.block_pos[0]+=self.direction
     #Prevents out of bounds after moving left/right, as well as overlapping while moving left and right
@@ -339,13 +340,9 @@ class PlayArea:
             self.gravity_delay = self.nat_gravity
 #---------------Hard drop mechanics-------------------------------------------
     def space_press(self):
-        free = True
-        #While the block is not touching anything, drop down
-        while free and not self.game_over():
-            self.block_pos[1] -= 1
-            #If the block touches something, block is no longer free
-            if self.check_bottom():
-                free = False
+        self.block_pos = self.ghost_pos.copy()
+        self.set = True
+        self.check_bottom()
 #---------------Ghost mechanics-----------------------------------------------
     def ghost(self):
         self.ghost_pos = self.block_pos.copy()
@@ -412,4 +409,8 @@ class PlayArea:
         self.held = False
         self.available = True
         self.lines_cleared = 0
-
+        self.key_timer_left = 0
+        self.key_timer_right = 0
+        self.key_down_left = False
+        self.key_down_right = False
+        self.direction = 0
